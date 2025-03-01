@@ -18,8 +18,8 @@ Run the following command on Mysql Workbench or Mysql Shell.
 
 ```sql
 CREATE DATABASE IF NOT EXISTS pacific;
-CREATE USER '<new_username>'@'localhost' IDENTIFIED BY '<password_desired>';
-GRANT ALL PRIVILEGES ON pacific.* TO '<new_username>'@'localhost';
+CREATE USER 'sqluser'@'localhost' IDENTIFIED BY 'sqlpassword';
+GRANT ALL PRIVILEGES ON pacific.* TO 'sqluser'@'localhost';
 ```
 
 ### Create Env File
@@ -28,8 +28,8 @@ GRANT ALL PRIVILEGES ON pacific.* TO '<new_username>'@'localhost';
 DATABASE_HOST="localhost"
 DATABASE_PORT="3306"
 DATABASE_NAME="pacific"
-DATABASE_USER="<new_username>"
-DATABASE_PASS="<password_desired>"
+DATABASE_USER="sqluser"
+DATABASE_PASS="sqlpassword"
 
 SECRET_KEY="YOUR_SECRET_KEY"
 ```
@@ -47,19 +47,6 @@ npx drizzle-kit migrate
 
 ### After Migration
 
-Run the following command on Mysql Workbench or Mysql Shell.
-
-```sql
-USE pacific;
-INSERT IGNORE INTO roles (name) VALUES ('ADMIN'), ('STAFF'), ('VENDOR'), ('USER');
-INSERT
-INTO users (username, email, password, role_id)
-VALUES (
-    "superadmin",
-    "admin@pacific.com",
-    "$2b$12$CiwXadSCtZR1VVDR4WK9heN5puDQudSDGWVyqrnR2o7E6r455JBdu",
-    (SELECT id FROM roles WHERE name="ADMIN")
-);
-```
+Run the commands on `initialData.sql` in project root on Mysql Workbench or Mysql Shell.
 
 [Assessment Link](https://workdrive.zohopublic.in/external/62c8876bc4894fe2f4dc8862c021bbb86bd1a6db08765d518926ef7d80cb82a3?layout=list)
