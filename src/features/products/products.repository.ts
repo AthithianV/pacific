@@ -2,6 +2,7 @@ import { db } from "@database/connection";
 import { Product, Role, User } from "@database/schema";
 import UserRepository from "@users/users.repository";
 import { ApplicationError } from "@utils/ApplicationError";
+import { calculateDiscount } from "@utils/calculateDiscount";
 import generateUniqueSlug from "@utils/generateSlug";
 import { ProductSchema } from "@utils/validation";
 import { eq } from "drizzle-orm";
@@ -24,11 +25,25 @@ class ProductRepository{
             }
 
             // Find the expiry date which is 7 days from start date.
-            const expiryDate = data.scheduledStartDate;
+            const expiryDate = new Date(data.scheduledStartDate);
             expiryDate.setDate(expiryDate.getDate()+7);
+
+         
+            
 
             // Generate Slug from product name
             const slug = await generateUniqueSlug(data.name);
+            console.log({
+                ...data,
+                urlSlug: slug,
+                expiryDate,
+                deliveryAmount: data.deliveryAmount.toString(),
+                oldPrice: data.oldPrice.toString(),
+                newPrice: data.newPrice.toString(),
+                addedBy
+            });
+
+            // Insert Product to Table
             const result = await db.insert(Product).values({
                 ...data,
                 urlSlug: slug,
@@ -45,6 +60,88 @@ class ProductRepository{
         } catch (error) {
             throw error;
         }
+    }
+
+    getAllProducts = async (page:number, limit:number, userId:number)=>{
+
+        const user = await UserRepository.getUserById(userId);
+
+        /**  Check if request user role === USER, then we need
+        * - Vendor Information
+        * - Expiry Time
+        * - Discout Percentage
+        * 
+        * If request User role === VENDOR, we need to return on the vendors's Product else we return all produt
+        */
+        if(user.role === "USER"){
+            const products = await db
+                .select()
+                .from(Product)
+                .innerJoin(User, eq(User.id, Product.vendorId))
+                .limit(limit)
+                .offset((page-1)*limit);
+
+            const formattedProducts = products.map(({ users, products }) => ({
+                ...products,
+                vendor: users,
+                discountAmount: calculateDiscount(
+                    Number(products.oldPrice), 
+                    Number(products.newPrice)).discountAmount,
+                discountPercentage: calculateDiscount(
+                    Number(products.oldPrice),
+                    Number(products.newPrice)).discountPercentage
+            }));
+            return formattedProducts;
+        }
+        
+        const products = await db
+            .select()
+            .from(Product)
+            .where(user.role === "VENDOR"?eq(Product.vendorId, userId):undefined)
+            .limit(limit)
+            .offset((page-1)*limit);
+
+        return products;
+    }
+
+    getProductBySlug = async (slug:string, userId:number)=>{
+        const user = await UserRepository.getUserById(userId);
+
+        /**  Check if request user role === USER, then we need
+        * - Vendor Information
+        * - Expiry Time
+        * - Discout Percentage
+        * 
+        * If request User role === VENDOR, we need to return on the vendors's Product else we return all produt
+        */
+        if(user.role === "USER"){
+            const productRecord = await db
+                .select()
+                .from(Product)
+                .where(eq(Product.urlSlug, slug))
+                .innerJoin(User, eq(User.id, Product.vendorId));
+            
+            if(productRecord.length===0) return {};
+
+            const {users, products} = productRecord[0];
+            return {
+                ...products, 
+                vendor: users,
+                discountAmount: calculateDiscount(
+                    Number(products.oldPrice), 
+                    Number(products.newPrice)).discountAmount,
+                discountPercentage: calculateDiscount(
+                    Number(products.oldPrice),
+                    Number(products.newPrice)).discountPercentage
+            };
+        }
+        
+        const product = await db
+            .select()
+            .from(Product)
+            .where(user.role === "VENDOR"?eq(Product.vendorId, userId):undefined)
+
+        return product.length==0?{}:product[0];
     }
     
 }

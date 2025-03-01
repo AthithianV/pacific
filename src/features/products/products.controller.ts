@@ -32,15 +32,31 @@ class ProductController{
             }
 
             const addedProduct = await this.productRepository.addProduct({...result.data}, req.user?.id as number);
-            res.status(200).json({success:true, message: "Product Added Successfully", addedProduct});
+            res.status(201).json({success:true, message: "Product Added Successfully", addedProduct});
         } catch (error) {
             next(error);
         }
     }
 
-    function = async (req:Request, res:Response, next:NextFunction) => {
+    getAllProducts = async (req:Request, res:Response, next:NextFunction) => {
         try {
-            
+            let page = 1;
+            let limit = 20;
+            if(req.query.page) page = Number(req.query.page);
+            if(req.query.limit) limit = Number(req.query.limit);
+
+            const products = await this.productRepository.getAllProducts(page, limit, Number(req.user?.id));
+            res.status(200).json({success:true, products});
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    getProductBySlug = async (req:Request, res:Response, next:NextFunction) => {
+        try {
+            const {slug} = req.params;
+            const product = await this.productRepository.getProductBySlug(slug, Number(req.user?.id));
+            res.status(200).json({success:true, product});
         } catch (error) {
             next(error);
         }
