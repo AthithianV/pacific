@@ -25,4 +25,3 @@ VALUES (
                 name = "ADMIN"
         )
     );
-

@@ -49,4 +49,8 @@ npx drizzle-kit migrate
 
 Run the commands on `initialData.sql` in project root on Mysql Workbench or Mysql Shell.
 
+### User Name for Admin = superadmin
+
+### Password = Admin@123
+
 [Assessment Link](https://workdrive.zohopublic.in/external/62c8876bc4894fe2f4dc8862c021bbb86bd1a6db08765d518926ef7d80cb82a3?layout=list)
