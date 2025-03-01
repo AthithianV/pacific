@@ -1,5 +1,9 @@
 import express from "express";
+import ProductController from "./products.controller";
 
-const Router = express.Router();
+const ProductRouter = express.Router();
+const productController = new ProductController();
 
-export default Router;
+ProductRouter.post("/add-product", productController.addProduct);
+
+export default ProductRouter;

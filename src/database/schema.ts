@@ -17,15 +17,17 @@ export const User = mysqlTable("users", {
 
 export const Product = mysqlTable("products", {
     id: int("id").primaryKey().autoincrement(),
+    vendorId: int("vendor_id").notNull().references(() => User.id),
+    addedBy: int("added_by").notNull().references(() => User.id),
     name: varchar("name", {length: 100}).notNull(),
     description: varchar("description", {length: 500}),
     category: varchar("category", {length: 50}).notNull(),
     scheduledStartDate: datetime("scheduled_start_date").notNull(),
     expiryDate: datetime("expiry_date").notNull(),
     freeDelivery: boolean("free_delivery").default(false),
-    deliveryAmount: decimal("delivery_amount", { precision: 10, scale: 2 }),
+    deliveryAmount: decimal("delivery_amount", { precision: 10, scale: 2 }).notNull(),
     imageUrl: varchar("image_url", {length: 500}),
-    oldPrice: decimal("old_price", { precision: 10, scale: 2 }),
-    newPrice: decimal("new_price", { precision: 10, scale: 2 }),
+    oldPrice: decimal("old_price", { precision: 10, scale: 2 }).notNull(),
+    newPrice: decimal("new_price", { precision: 10, scale: 2 }).notNull(),
     urlSlug: varchar("url_slug", { length: 150 }).unique().notNull(),
 });

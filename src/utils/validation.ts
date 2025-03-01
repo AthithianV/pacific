@@ -10,3 +10,17 @@ export const userSchema = z.object({
     ),
     role: z.enum(["ADMIN", "STAFF", "VENDOR", "USER"])
 });
+
+export const ProductSchema = z.object({
+  vendorId: z.number().int().positive().describe("Vendor ID is required"),
+  name: z.string().max(100, "Name must be at most 100 characters").min(1, "Name is required"),
+  description: z.string().max(500, "Description must be at most 500 characters").optional().nullable(),
+  category: z.string().max(50, "Category must be at most 50 characters").min(1, "Category is required"),
+  scheduledStartDate: z.coerce.date().refine(date => !isNaN(date.getTime()), {
+    message: "Scheduled Start Date must be a valid date",
+  }),
+  freeDelivery: z.boolean().default(false),
+  deliveryAmount: z.coerce.number().min(0, "Delivery Amount must be a positive number"),
+  oldPrice: z.coerce.number().min(0, "Old Price must be a positive number"),
+  newPrice: z.coerce.number().min(0, "New Price must be a positive number"),
+});

@@ -8,7 +8,9 @@ const errorHandler = (err:Error, req:Request, res:Response, next:NextFunction)=>
         return;
     }
 
-    logger.error("Unexpected Error: ", err);
+    console.log(err);
+    
+    logger.error("Unexpected Error: "+JSON.stringify(err));
     res.status(500).json({success: false, message: "Internal Server Error"});
 }
 
