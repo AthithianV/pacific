@@ -18,4 +18,5 @@ const connection = mysql.createPool({
   password: DATABASE_PASS,
 });
 
-export const db = drizzle(connection);
+export const db = globalThis.drizzle || drizzle(connection);
+if(process.env.NODE_ENV !== "production") globalThis.drizzle = db;

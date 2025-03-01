@@ -1,0 +1,1 @@
+type RoleOption = "ADMIN"|"STAFF"|"VENDOR"|"USER"

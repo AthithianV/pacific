@@ -11,7 +11,7 @@ class UserController{
     }
 
 
-    signUp = async (req:Request, res:Response, next:NextFunction) => {
+    signUp = async (req:Request, res:Response, next:NextFunction):Promise<void> => {
         try {
             
             // Validate Request data.
@@ -38,16 +38,39 @@ class UserController{
         }
     }
 
-    function = async (req:Request, res:Response, next:NextFunction) => {
+    login = async (req:Request, res:Response, next:NextFunction):Promise<void> => {
         try {
-            
+            // Extract Username and Password, validate them.
+            const {username, password} = req.body;
+            if(!username || !password){
+                throw new ApplicationError(400, "Username and Password Required");
+            }
+
+            // Get token
+            const token = await this.userRepository.login(username, password);
+            res.status(200).json(
+                {
+                    message: "Login Successfully", 
+                    success: true,
+                    token
+                }); 
         } catch (error) {
             next(error);
         }
     }
 
-    function1 = async (req:Request, res:Response, next:NextFunction) => {
+    createStaff = async (req:Request, res:Response, next:NextFunction):Promise<void> => {
         try {
+            // Validate Request data.
+            const result = userSchema.safeParse({...req.body, role: "STAFF"});
+            if(!result.success){
+                res.status(400).json({errro: result?.error.format(), message: "Invalid input(s)", success: false});
+                return;
+            }
+
+            await this.userRepository.createStaff(result.data);
+
+            res.status(201).json({message: "Staff Account created Successfully", success: true});
             
         } catch (error) {
             next(error);

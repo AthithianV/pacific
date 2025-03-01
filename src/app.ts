@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(logRequest);
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server");
+  res.send("Welcom To Pacific API");
 });
 
 app.use("/user", UserRouter);

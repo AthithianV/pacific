@@ -24,7 +24,7 @@ const logger = pino(
         },
         {
           target: "pino/file", // Write logs to file
-          options: { destination: "./logs/hive.log", mkdir: true, ignore: "pid,hostname" }, // Auto-create folder
+          options: { destination: "./logs/pacific.log", mkdir: true, ignore: "pid,hostname" }, // Auto-create folder
         },
       ],
     }

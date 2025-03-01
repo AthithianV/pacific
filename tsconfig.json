@@ -4,6 +4,8 @@
     /* Language and Environment */
     "target": "es2016",
 
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+
     /* Modules */
     "module": "commonjs",                                
 
@@ -13,6 +15,7 @@
       "@services/*": ["services/*"],
       "@database/*": ["database/*"],
       "@utils/*": ["utils/*"],
+      "@types/*": ["types/*"],
       "@users/*": ["features/users/*"],
       "@products/*": ["features/products/*"]
     },
@@ -31,6 +34,13 @@
 
     
   },
-  "include": ["src", "types"],
-  "exclude": ["node_modules", "dist"]
+  "files": [
+    "./src/types/global.d.ts",
+    "./src/types/express.d.ts",
+    "./src/types/roleOptions.d.ts"
+  ],
+  "include": [
+      "**/*.ts",
+      "**/*.d.ts",
+    ]
 }
