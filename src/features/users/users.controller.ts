@@ -76,6 +76,38 @@ class UserController{
             next(error);
         }
     }
+
+    getUsers = async (req:Request, res:Response, next:NextFunction):Promise<void> => {
+        try {
+
+            // Get Page and Limit from query, if not exists in param set default value.
+            let page = 1;
+            let size = 20;
+            if(req.query.page) page = Number(req.query.page);
+            if(req.query.limit) size = Number(req.query.limit);
+
+            const users = await this.userRepository.getUsers(page, size);
+
+            res.status(200).json({users, success: true});
+            
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    getUserById = async (req:Request, res:Response, next:NextFunction):Promise<void> => {
+        try {
+
+            const {userId} = req.params;
+
+            const users = await UserRepository.getUserById(Number(userId));
+
+            res.status(200).json({users, success: true});
+            
+        } catch (error) {
+            next(error);
+        }
+    }
     
 }
 

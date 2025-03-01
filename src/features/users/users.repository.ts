@@ -1,4 +1,4 @@
-import { eq, or } from "drizzle-orm";
+import { eq, InferSelectModel, or } from "drizzle-orm";
 import bcryptjs from "bcryptjs";
 import { z } from "zod";
 import jwt from "jsonwebtoken";
@@ -33,6 +33,26 @@ class UserRepository{
             throw new ApplicationError(400, `Role with name:${role} Does not Exists`);
         }
         return roleRecord[0].id;
+    }
+
+    static getUserById = async (userId:number)=>{
+        const userRecord = await db.select(
+            {
+                username: User.username,
+                email: User.email,
+                role: Role.name,
+                created_at: User.createdAt,
+                updated_at: User.updatedAt
+            })
+            .from(User)
+            .where(eq(User.id, userId))
+            .innerJoin(Role, eq(User.roleId, Role.id));
+        
+        if(userRecord.length===0){
+            throw new ApplicationError(400, "User does not Exists, Check User ID");
+        }
+
+        return userRecord[0];
     }
 
     signup = async (data:z.infer<typeof userSchema>):Promise<void> => {
@@ -125,6 +145,23 @@ class UserRepository{
         // Create staff
         await db.insert(User).values({username, email, roleId, password: hashedPassword});
 
+    }
+    getUsers = async (page:number = 1, size:number = 20)=>{
+        // Create staff
+        const userRecords = 
+          await db.select(
+            {
+                username: User.username,
+                email: User.email,
+                role: Role.name,
+                created_at: User.createdAt,
+                updated_at: User.updatedAt
+            })
+            .from(User)
+            .innerJoin(Role, eq(User.roleId, Role.id))
+            .limit(size).offset((page-1)*size);
+
+        return userRecords;
     }
     
 }
