@@ -11,7 +11,10 @@
     "baseUrl": "./src",
     "paths": {
       "@services/*": ["services/*"],
-      "@utils/*": ["utils/*"]
+      "@database/*": ["database/*"],
+      "@utils/*": ["utils/*"],
+      "@users/*": ["features/users/*"],
+      "@products/*": ["features/products/*"]
     },
     "outDir": "./dist",
 
@@ -24,6 +27,10 @@
     "strict": true,
 
     /* Completeness */
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+
+    
+  },
+  "include": ["src", "types"],
+  "exclude": ["node_modules", "dist"]
 }
