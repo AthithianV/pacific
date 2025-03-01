@@ -5,7 +5,7 @@ import { ApplicationError } from "@utils/ApplicationError";
 import { calculateDiscount } from "@utils/calculateDiscount";
 import generateUniqueSlug from "@utils/generateSlug";
 import { ProductSchema } from "@utils/validation";
-import { eq } from "drizzle-orm";
+import { and, eq, like, or, sql } from "drizzle-orm";
 import { z } from "zod";
 
 
@@ -83,7 +83,7 @@ class ProductRepository{
 
             const formattedProducts = products.map(({ users, products }) => ({
                 ...products,
-                vendor: users,
+                vendor: {email: users.email, username: users.username},
                 discountAmount: calculateDiscount(
                     Number(products.oldPrice), 
                     Number(products.newPrice)).discountAmount,
@@ -126,7 +126,7 @@ class ProductRepository{
             const {users, products} = productRecord[0];
             return {
                 ...products, 
-                vendor: users,
+                vendor: {email: users.email, username: users.username},
                 discountAmount: calculateDiscount(
                     Number(products.oldPrice), 
                     Number(products.newPrice)).discountAmount,
@@ -142,6 +142,38 @@ class ProductRepository{
             .where(user.role === "VENDOR"?eq(Product.vendorId, userId):undefined)
 
         return product.length==0?{}:product[0];
+    }
+
+    searchProduct = async (page:number, limit:number, userId:number, keyword:string)=>{
+
+        const user = await UserRepository.getUserById(userId);
+
+        if(!limit) limit = 20;
+        if(!page) page = 1;
+
+        const pattern = `%${keyword}%`
+        const condition = or(like(Product.name, pattern), like(Product.description, pattern));
+
+        const products = await db
+            .select()
+            .from(Product)
+            .where(condition)
+            .innerJoin(User, eq(User.id, Product.vendorId))
+            .limit(limit)
+            .offset((page-1)*limit);
+
+        const formattedProducts = products.map(({ users, products }) => ({
+            ...products,
+            vendor: {email: users.email, username: users.username},
+            discountAmount: calculateDiscount(
+                Number(products.oldPrice), 
+                Number(products.newPrice)).discountAmount,
+            discountPercentage: calculateDiscount(
+                Number(products.oldPrice),
+                Number(products.newPrice)).discountPercentage
+        }));
+        return formattedProducts;
+    
     }
     
 }

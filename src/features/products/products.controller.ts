@@ -61,6 +61,21 @@ class ProductController{
             next(error);
         }
     }
+
+    searchProduct = async (req:Request, res:Response, next:NextFunction) => {
+        try {
+            let {keyword, page, limit} = req.query;
+            const products = await this.productRepository.searchProduct(
+                Number(page), 
+                Number(limit), 
+                Number(req.user?.id),
+                keyword as string
+            );
+            res.status(200).json({success:true, products});
+        } catch (error) {
+            next(error);
+        }
+    }
     
 }
 
